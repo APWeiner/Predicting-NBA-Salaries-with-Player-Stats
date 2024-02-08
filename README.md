@@ -1,5 +1,5 @@
 # Bruin-Sports-Analytics-BSA-
-This is the code that I used to create a linear regression model that estimates an NBA player's salary based on certain stats.
+This is the code that I used to create a linear regression model that estimates an NBA player's salary based on certain stats using data from the 2022-2023 season.
 The process, results, and analysis of the model were reported for Bruin Sports Analytic's data journalism in this article here: https://www.bruinsportsanalytics.com/post/nba-ballers .
 
 
