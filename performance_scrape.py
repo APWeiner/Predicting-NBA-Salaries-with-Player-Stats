@@ -9,7 +9,7 @@ year = 2024
 
 
 ####Salary Data Scraping####
-#Creating dataframe to store player salary data
+#Creating dataframe to store player |salary data
 salary_df = pd.DataFrame()
 
 #Creating a string based on specified year to extract data from url
@@ -50,9 +50,10 @@ if table:
             salary_df.loc[len(salary_df)]=cleaned_cells[1:3]
 
 
+
 ####Per-Game Stats Scraping####
 #URL of scraped website, Basketball Reference's per game stats for players
-url = "https://www.basketball-reference.com/leagues/NBA_"+year+"_per_game.html"
+url = "https://www.basketball-reference.com/leagues/NBA_"+str(year)+"_per_game.html"
 
 #Sending a GET request to the URL and saving as response
 response = requests.get(url)
@@ -101,10 +102,9 @@ def normalize_characters(text):
     return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
 per_game_df['Player'] = per_game_df['Player'].apply(normalize_characters)
 
-
 ####Scraping for Advanced Stats####
 #Methods are generally same as per-game scraping
-url = "https://www.basketball-reference.com/leagues/NBA_2024_advanced.html"
+url = "https://www.basketball-reference.com/leagues/NBA_"+str(year)+"_advanced.html"
 response = requests.get(url)
 soup = BS(response.content, 'html.parser')
 table = soup.find('table')
@@ -131,16 +131,23 @@ for row in rows:
     cells = row.find_all('td')
     for cell in cells:
         cleaned_cells = [cell.text.replace('\n', '').replace('\t', '').replace('$', '').replace(',','') for cell in cells]
-    final_df.loc[len(final_df)]=cleaned_cells
+    advanced_df.loc[len(advanced_df)]=cleaned_cells
 
-def normalize_characters(text):
-    return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
-advanced['Player'] = advanced['Player'].apply(normalize_characters)
+advanced_df['Player'] = advanced_df['Player'].apply(normalize_characters)
 
-salaries_merged_df = pd.merge(salaries_df, final_df), on='Player', how='outer')
+####Remove duplicate columns from advanced_df besides 'Player'####
+per_game_columns = per_game_df.columns.drop('Player')
+advanced_columns = advanced_df.columns
+common_stats = set(per_game_columns).intersection(set(advanced_columns))
+advanced_columns = [stat for stat in advanced_columns if stat not in common_stats]
+advanced_df = advanced_df.loc[:, advanced_columns]
 
-salaries_merged_df.dropna(subset=['2023-2024'], inplace=True)
+####Players who were traded have multiple entries. Their first occurence is total season####
+per_game_df.drop_duplicates(subset='Player',keep='first',inplace=True)
+advanced_df.drop_duplicates(subset='Player',keep='first',inplace=True)
 
-salaries_merged_df.to_csv('current salaries and performances.csv', index=False)
 
-
+####Merging all dataframes on 'Player' column and exporting to 'current stats and salaries.csv'####
+final_df = pd.merge(per_game_df, advanced_df, on='Player')
+final_df = pd.merge(salary_df, final_df, on='Player')
+final_df.to_csv('current stats and salaries.csv', index=False)
