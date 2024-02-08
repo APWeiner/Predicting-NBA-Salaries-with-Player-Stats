@@ -1,52 +1,109 @@
+#Make necessary imports
 import requests
 from bs4 import BeautifulSoup as BS
 import pandas as pd
 import unicodedata
 
-#salaries webpage URL
+#Specifying year to retrieve data for (year = 2024 => 2023-24 season)
+year = 2024
 
-#get headers
-url = "https://www.basketball-reference.com/leagues/NBA_2024_per_game.html"
+
+####Salary Data Scraping####
+#Creating dataframe to store player salary data
+salary_df = pd.DataFrame()
+
+#Creating a string based on specified year to extract data from url
+year_string = str(year-1)+"-"+str(year)
+
+##Only use this if not working with current NBA season!
+#url = "https://hoopshype.com/salaries/players/"+year_string+"/"
+
+#URL of hoopshype player salary data for current season
+url = "https://hoopshype.com/salaries/players/"
+
+#Sending a GET request to the URL and saving as response
 response = requests.get(url)
+
+#Creating dataframe to store player salary data
+salary_df = pd.DataFrame(columns=['Player',"Salary"])
+
+#Using BeautifulSoup's HTML parser
 soup = BS(response.content, 'html.parser')
+#Finding the table
+table = soup.find('table')
+if not table:
+    print("bad")
+if table:
+    print("Table Found!")
+    #Finding the table body
+    tbody = soup.find('tbody')
+    if tbody:
+        print("Tbody found!")
+                
+        #Finding rows containing each player
+        rows = tbody.find_all('tr')
+        for row in rows:
+            cells = row.find_all('td')
+            #Cleaning cells from uneccesary escape sequences and characters
+            cleaned_cells = [cell.text.replace('\n', '').replace('\t', '').replace('$', '').replace(',','') for cell in cells]
+            #Putting Player and salary at end of the salary_df
+            salary_df.loc[len(salary_df)]=cleaned_cells[1:3]
+
+
+####Per-Game Stats Scraping####
+#URL of scraped website, Basketball Reference's per game stats for players
+url = "https://www.basketball-reference.com/leagues/NBA_"+year+"_per_game.html"
+
+#Sending a GET request to the URL and saving as response
+response = requests.get(url)
+
+#Parsing the HTML content of the response using BeautifulSoup
+soup = BS(response.content, 'html.parser')
+
+#Finding the table element of the webpage
 table = soup.find('table')
 if table:
     print("Table Found!")
+#Finding the table head which contains the names of stats
 thead = table.find('thead')
 if thead:
     print('Thead Found!')
+#Finding the row in the table head
 header_row = thead.find('tr')
 if header_row:
     print('Header Row Found!')
+#Creating a list of the names of the different stats from the cells in the header row
 col_list = []
 cols = header_row.find_all('th')
 for col in cols:
     col_list.append(col.text)
 col_list = col_list[1:]
 
-first = True
-year = 2024
-final_df = pd.DataFrame(columns=col_list)
+#Creating dataframe to store per game data with stats as columns
+per_game_df = pd.DataFrame(columns=col_list)
+
+#Finding the body of the table with actual stats
 tbody = table.find('tbody')  
 if tbody:
     print('tbody found!') 
+#Rows of stats corresponding to players
 rows = tbody.find_all('tr')
 for row in rows:
     cells = row.find_all('td')
     for cell in cells:
+        #Removing uneccesary characters and escape sequences from datacells
         cleaned_cells = [cell.text.replace('\n', '').replace('\t', '').replace('$', '').replace(',','') for cell in cells]
-    final_df.loc[len(final_df)]=cleaned_cells
+    #Adding the cleaned cells to the end of the dataframe
+    per_game_df.loc[len(per_game_df)]=cleaned_cells
 
-salary_df = pd.read_csv('salaries_with_24.csv')
-
-salary24df = salary_df[['Player','2023-2024']]
-
+#Function for normalizing characters i.e Luka Dončić => Luka Doncic
 def normalize_characters(text):
     return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
-final_df['Player'] = final_df['Player'].apply(normalize_characters)
+per_game_df['Player'] = per_game_df['Player'].apply(normalize_characters)
 
-salaries_merged_df = pd.merge(salary24df, final_df, on='Player', how='outer')
 
+####Scraping for Advanced Stats####
+#Methods are generally same as per-game scraping
 url = "https://www.basketball-reference.com/leagues/NBA_2024_advanced.html"
 response = requests.get(url)
 soup = BS(response.content, 'html.parser')
@@ -65,9 +122,7 @@ for col in cols:
     col_list.append(col.text)
 col_list = col_list[1:]
 
-first = True
-year = 2024
-final_df = pd.DataFrame(columns=col_list)
+advanced_df = pd.DataFrame(columns=col_list)
 tbody = table.find('tbody')  
 if tbody:
     print('tbody found!') 
@@ -80,9 +135,9 @@ for row in rows:
 
 def normalize_characters(text):
     return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
-final_df['Player'] = final_df['Player'].apply(normalize_characters)
+advanced['Player'] = advanced['Player'].apply(normalize_characters)
 
-salaries_merged_df = pd.merge(salaries_merged_df, final_df, on='Player', how='outer')
+salaries_merged_df = pd.merge(salaries_df, final_df), on='Player', how='outer')
 
 salaries_merged_df.dropna(subset=['2023-2024'], inplace=True)
 
