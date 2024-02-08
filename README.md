@@ -11,6 +11,7 @@ The Players with the Top 10 Highest Estimated Salaries so Far:
 3. Giannis Antetokounmpo
 4. Joel Embiid
 5. Shai Gilgeous-Alexander
+
 The Current Top 5 on the KIA Race to MVP Ladder:
 1. Nikola Jokic
 2. Shai Gilgeous-Alexander
@@ -28,6 +29,8 @@ The model is trained on the target variable, salaries granted to NBA players by 
 
 
 -performance_scrape.py was used to scrape NBA player stats and salaries from Basketball Reference and HoopsHype using BeautfulSoup's HTML parser. The same code with some adjustments was used to create both csv files.
+
 -Model Training.ipynb documents how the model was trained including feature selection and performance evaluation
+
 -Current Season.ipynb uses the previously trained model to estimate a player's salary based on their current 2023-24 season performance
 
