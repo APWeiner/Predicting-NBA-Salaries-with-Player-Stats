@@ -1,2 +1,2 @@
 # Bruin-Sports-Analytics-BSA-
-Code I used in my articles for BSA
+Code used for Sports analytics
