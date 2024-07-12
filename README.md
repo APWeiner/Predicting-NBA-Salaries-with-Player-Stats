@@ -1,5 +1,5 @@
 # Bruin-Sports-Analytics-BSA-
-This is the code that I used to create a linear regression model that estimates an NBA player's salary based on certain stats using data from the 2022-2023 season.
+Linear regression model that estimates an NBA player's salary based on certain stats using training data from the 2022-2023 season.
 The process, results, and analysis of the model were reported for Bruin Sports Analytic's data journalism in this article here: https://www.bruinsportsanalytics.com/post/nba-ballers .
 
 
@@ -19,18 +19,18 @@ The Current Top 5 on the KIA Race to MVP Ladder:
 4. Giannis Antetokounmpo
 5. Jayson Tatum
 
-4 out of 5 of the names are present on both lists, and Luka Doncic who the model ranked 2nd is 6th on the KIA MVP Ladder.
+4 out of 5 of the names are present on both lists. However, Luka Doncic who the model ranked 2nd is 6th on the KIA MVP Ladder.
 
-The two powerhouse rookies battling out for rookie of the year are Victor Wembanyama and Chet Holmgren and neither is secure as the favorite.
-However, as of writing, both the KIA Ladder and the model edge Victor over Chet.
+The two powerhouse rookies battling out for rookie of the year are Victor Wembanyama and Chet Holmgren.
+As of writing, both the Rookie of the Year Ladder and the model edge Victor over Chet.
 
 The model is trained on the target variable, salaries granted to NBA players by franchises, which is not necessarily wholly representative of a player's on-court contributions. However, the better a player is, the  better they tend to earn, so the salary estimations are indiscriminately used as metrics of a player's value here.
 
 
 
--performance_scrape.py was used to scrape NBA player stats and salaries from Basketball Reference and HoopsHype using BeautfulSoup's HTML parser. The same code with some adjustments was used to create both csv files.
+-performance_scrape.py: Scraped NBA player stats and salaries from Basketball Reference and HoopsHype using BeautfulSoup's HTML parser. The same code with some adjustments was used to create both csv files.
 
--Model Training.ipynb documents how the model was trained including feature selection and performance evaluation
+-Model Training.ipynb: Documents how the model was trained including feature selection and performance evaluation
 
--Current Season.ipynb uses the previously trained model to estimate a player's salary based on their current 2023-24 season performance
+-Current Season.ipynb: Uses the previously trained model to estimate a player's salary based on their current 2023-24 season performance
 
